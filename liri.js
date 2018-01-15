@@ -29,16 +29,27 @@ function processTweets() {
 	// GET tweets
 	client.get('statuses/user_timeline', params, function(error, tweets, response) {
 	  if (!error) {
-	  	console.log("\nDisplaying the latest 20 Tweet of " + params.screen_name);
-	  	for(var i = 0; i < tweets.length; i++) {
-	  		console.log("Tweet #" + i + 1);
-	  		// Display the tweet
-	    	console.log(tweets[i].text);
-	    	// Display when the tweet was created
-	    	console.log(tweets[i].created_at + '\n');
-		}
+	  	var infoToDisplay = getTwitterInfo(tweets, params.screen_name);
+	  	console.log(infoToDisplay);
+	  	appendToFile(infoToDisplay);
 	  }
 	});
+}
+
+// Returns a string containing the info that needs to be displayed for Twitter
+function getTwitterInfo(tweets, user) {
+	var toReturn = "";
+
+	toReturn += ("\nDisplaying the latest 20 Tweet of " + user);
+  	for(var i = 0; i < tweets.length; i++) {
+  		toReturn += ("\nTweet #" + i + 1);
+  		// Display the tweet
+    	toReturn += ("\n" + tweets[i].text);
+    	// Display when the tweet was created
+    	toReturn += ("\n" + tweets[i].created_at + '\n');
+	}
+
+   	return toReturn;
 }
 
 // This handles the retrieval of track info and display them
@@ -67,20 +78,31 @@ function processSpotify(entry) {
 	  	query: track 
 	  })
 	  .then(function(response) {
-	  	console.log("\nDisplaying track info");
-
-	    // Display the artist
-	    console.log("Artist: " + response.tracks.items[index].artists[0].name + '\n');
-	    // Display the song name
-	    console.log("Song: " + response.tracks.items[index].name + '\n');
-	    // Display the preview link of the song from Spotify
-	    console.log("Preview URL: " + response.tracks.items[index].preview_url + '\n');
-	    // Display the album of the song
-	    console.log("Album: " + response.tracks.items[index].album.name);
+	  	var infoToDisplay = getSpotifyInfo(response, index);
+	  	console.log(infoToDisplay);
+	  	appendToFile(infoToDisplay);
 	  })
 	  .catch(function(err) {
 	    console.log(err);
 	  });
+}
+
+// Returns a string containing the info that needs to be displayed for Spotify
+function getSpotifyInfo(response, index) {
+	var toReturn = "";
+
+	toReturn += ("\nDisplaying track info");
+
+    // Display the artist
+    toReturn += ("\nArtist: " + response.tracks.items[index].artists[0].name + '\n');
+    // Display the song name
+    toReturn += ("\nSong: " + response.tracks.items[index].name + '\n');
+    // Display the preview link of the song from Spotify
+    toReturn += ("\nPreview URL: " + response.tracks.items[index].preview_url + '\n');
+    // Display the album of the song
+    toReturn += ("\nAlbum: " + response.tracks.items[index].album.name + "\n");
+
+   	return toReturn;
 }
 
 // This handles the retrieval of movie info and display them
@@ -98,26 +120,36 @@ function processOmdbRequest(entry) {
 	request(queryUrl, function(error, response, body) {
 	  // If the request is successful
 	  if (!error) {
-	  	console.log("\nDisplaying movie info");
-
-	    // Display Title of the movie.
-	    console.log("Title: " + JSON.parse(body).Title + '\n');
-	   	// Display Year the movie came out.
-	   	console.log("Year: " + JSON.parse(body).Year + '\n');
-	   	// Display IMDB Rating of the movie.
-	   	console.log("IMDB Rating: " + JSON.parse(body).Ratings[0].Value + '\n');
-	   	// Display Rotten Tomatoes Rating of the movie.
-	   	console.log("Rotten Tomatoes Rating: " + JSON.parse(body).Ratings[1].Value + '\n');
-	   	// Display Country where the movie was produced.
-	   	console.log("Country: " + JSON.parse(body).Country + '\n');
-	   	// Display Language of the movie.
-	   	console.log("Language: " + JSON.parse(body).Language + '\n');
-	   	// Display Plot of the movie.
-	   	console.log("Plot: " + JSON.parse(body).Plot + '\n');
-	   	// Display Actors in the movie.
-	   	console.log("Actors: " + JSON.parse(body).Actors);
+	  	var infoToDisplay = getOmdbRequestInfo(body);
+	  	console.log(infoToDisplay);
+	  	appendToFile(infoToDisplay);
 	  }
 	 });
+}
+
+// Returns a string containing the info that needs to be displayed for OMDB Request
+function getOmdbRequestInfo(body) {
+	var toReturn = "";
+	toReturn += ("\nDisplaying movie info");
+
+    // Display Title of the movie.
+    toReturn += ("\nTitle: " + JSON.parse(body).Title + '\n');
+   	// Display Year the movie came out.
+   	toReturn += ("\nYear: " + JSON.parse(body).Year + '\n');
+   	// Display IMDB Rating of the movie.
+   	toReturn += ("\nIMDB Rating: " + JSON.parse(body).Ratings[0].Value + '\n');
+   	// Display Rotten Tomatoes Rating of the movie.
+   	toReturn += ("\nRotten Tomatoes Rating: " + JSON.parse(body).Ratings[1].Value + '\n');
+   	// Display Country where the movie was produced.
+   	toReturn += ("\nCountry: " + JSON.parse(body).Country + '\n');
+   	// Display Language of the movie.
+   	toReturn += ("\nLanguage: " + JSON.parse(body).Language + '\n');
+   	// Display Plot of the movie.
+   	toReturn += ("\nPlot: " + JSON.parse(body).Plot + '\n');
+   	// Display Actors in the movie.
+   	toReturn += ("\nActors: " + JSON.parse(body).Actors + "\n");
+
+   	return toReturn;
 }
 
 // This handles the parsing of the random.txt file
@@ -147,6 +179,16 @@ function processRandom() {
 		else if(dataArr[0] === "movie-this") {
 			processOmdbRequest(dataArr[1]);
 		}
+	});
+}
+
+// Appends to log.txt the text argument passed
+function appendToFile(text) {
+	fs.appendFile('log.txt', text, function(err) {
+	  // If an error was experienced we console.log it.
+	  if (err) {
+	    console.log(err);
+	  }
 	});
 }
 
