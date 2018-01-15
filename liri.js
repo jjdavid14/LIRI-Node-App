@@ -2,12 +2,14 @@ var keys = require('./keys');
 var Twitter = require('twitter');
 var Spotify = require('node-spotify-api');
 var request = require('request');
+var fs = require("fs");
 
 // Get Command Line Argument
 var command = process.argv[2];
+var userEntry = process.argv[3];
 
-// Twitter Command
-if(command === "my-tweets") {
+// This handles the retrieval of Twitter info and display them
+function processTweets() {
 	// Store Twitter keys as a variable
 	var twitterKeys = keys.twitterKeys;
 
@@ -38,14 +40,15 @@ if(command === "my-tweets") {
 	  }
 	});
 }
-// Spotify Command
-else if(command === "spotify-this-song") {
+
+// This handles the retrieval of track info and display them
+function processSpotify(entry) {
 	// Store Spotify keys as a variable
 	var spotifyKeys = keys.spotifyKeys;
 
 	// Get the user's song name entry from the command line
 	// but if no argument was passed then assign the track as "The Sign"
-	var track = process.argv[3] || "The Sign";
+	var track = entry || "The Sign";
 
 	// index will be 7 if no argument is passed because "The Sign by Ace of Base"
 	// is the 8th item returned by Spotify API else we just return
@@ -79,13 +82,14 @@ else if(command === "spotify-this-song") {
 	    console.log(err);
 	  });
 }
-// Movie Command
-else if(command === "movie-this") {
+
+// This handles the retrieval of movie info and display them
+function processOmdbRequest(entry) {
 	// Get OMDB api key
 	var omdbKey = keys.omdbKey;
 
 	// Get the user's movie name entry from the command line
-	var movieName = process.argv[3] || "Mr. Nobody";
+	var movieName = entry || "Mr. Nobody";
 
 	 // Run a request to the OMDB API with the movie specified
 	var queryUrl = "http://www.omdbapi.com/?t=" + movieName + "&apikey=" + omdbKey.apiKey;
@@ -115,7 +119,50 @@ else if(command === "movie-this") {
 	  }
 	 });
 }
+
+// This handles the parsing of the random.txt file
+function processRandom() {
+	// Read from the "random.txt" file.
+	fs.readFile("random.txt", "utf8", function(error, data) {
+
+	  // Log the error to the console.
+	  if (error) {
+	    return console.log(error);
+	  }
+
+	  // Then split it by commas (to make it more readable)
+	  var dataArr = data.split(",");
+
+
+	  // Run what is inside random.txt
+	  // Twitter Command
+		if(dataArr[0] === "my-tweets") {
+			processTweets();
+		}
+		// Spotify Command
+		else if(dataArr[0] === "spotify-this-song") {
+			processSpotify(dataArr[1]);
+		}
+		// Movie Command
+		else if(dataArr[0] === "movie-this") {
+			processOmdbRequest(dataArr[1]);
+		}
+	});
+}
+
+// Twitter Command
+if(command === "my-tweets") {
+	processTweets();
+}
+// Spotify Command
+else if(command === "spotify-this-song") {
+	processSpotify(userEntry);
+}
+// Movie Command
+else if(command === "movie-this") {
+	processOmdbRequest(userEntry);
+}
 // Do What It Says Command
 else if(command === "do-what-it-says") {
-	
+	processRandom();
 }
