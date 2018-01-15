@@ -30,7 +30,9 @@ if(command === "my-tweets") {
 	  	console.log("\nDisplaying the latest 20 Tweet of " + params.screen_name);
 	  	for(var i = 0; i < tweets.length; i++) {
 	  		console.log("Tweet #" + i + 1);
+	  		// Display the tweet
 	    	console.log(tweets[i].text);
+	    	// Display when the tweet was created
 	    	console.log(tweets[i].created_at + '\n');
 		}
 	  }
@@ -79,9 +81,41 @@ else if(command === "spotify-this-song") {
 }
 // Movie Command
 else if(command === "movie-this") {
+	// Get OMDB api key
+	var omdbKey = keys.omdbKey;
 
+	// Get the user's movie name entry from the command line
+	var movieName = process.argv[3] || "Mr. Nobody";
+
+	 // Run a request to the OMDB API with the movie specified
+	var queryUrl = "http://www.omdbapi.com/?t=" + movieName + "&apikey=" + omdbKey.apiKey;
+
+	// Make the request
+	request(queryUrl, function(error, response, body) {
+	  // If the request is successful
+	  if (!error) {
+	  	console.log("\nDisplaying movie info");
+
+	    // Display Title of the movie.
+	    console.log("Title: " + JSON.parse(body).Title + '\n');
+	   	// Display Year the movie came out.
+	   	console.log("Year: " + JSON.parse(body).Year + '\n');
+	   	// Display IMDB Rating of the movie.
+	   	console.log("IMDB Rating: " + JSON.parse(body).Ratings[0].Value + '\n');
+	   	// Display Rotten Tomatoes Rating of the movie.
+	   	console.log("Rotten Tomatoes Rating: " + JSON.parse(body).Ratings[1].Value + '\n');
+	   	// Display Country where the movie was produced.
+	   	console.log("Country: " + JSON.parse(body).Country + '\n');
+	   	// Display Language of the movie.
+	   	console.log("Language: " + JSON.parse(body).Language + '\n');
+	   	// Display Plot of the movie.
+	   	console.log("Plot: " + JSON.parse(body).Plot + '\n');
+	   	// Display Actors in the movie.
+	   	console.log("Actors: " + JSON.parse(body).Actors);
+	  }
+	 });
 }
 // Do What It Says Command
 else if(command === "do-what-it-says") {
-
+	
 }

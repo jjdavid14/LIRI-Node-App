@@ -12,7 +12,12 @@ var spotifyKeys = {
 	client_secret: '8c02bad6c53f45959957b2635f7bba0c'
 };
 
+var omdbKey = {
+	apiKey: 'b5be26af'
+};
+
 module.exports = {
 	twitterKeys: twitterKeys,
-	spotifyKeys: spotifyKeys
+	spotifyKeys: spotifyKeys,
+	omdbKey: omdbKey
 };
